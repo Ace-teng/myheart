@@ -23,6 +23,7 @@ signals:
     void errorOccurred(const QString &error);
     void heartbeatReceived(qint64 timestamp);
     void connectionTimeout();
+    void statusMessage(const QString &msg); // 新增的携带 QString 消息的信号
 
 private slots:
     void onConnected();

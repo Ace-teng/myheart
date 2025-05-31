@@ -7,7 +7,9 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     if (argc < 3) {
+#ifdef DEBUG
         qDebug() << "Usage: testdevice <host> <port>";
+#endif
         return 1;
     }
 
@@ -19,15 +21,21 @@ int main(int argc, char *argv[])
     HeartbeatDevice device;
 
     QObject::connect(&device, &HeartbeatDevice::connectionStatusChanged, [](bool connected) {
+#ifdef DEBUG
         qDebug() << "Device connection status:" << (connected? "Connected" : "Disconnected");
+#endif
     });
 
     QObject::connect(&device, &HeartbeatDevice::errorOccurred, [](const QString &error) {
+#ifdef DEBUG
         qDebug() << "Device error:" << error;
+#endif
     });
 
     QObject::connect(&device, &HeartbeatDevice::heartbeatSent, [](qint64 timestamp) {
+#ifdef DEBUG
         qDebug() << "Device heartbeat sent at:" << QDateTime::fromMSecsSinceEpoch(timestamp).toString();
+#endif
     });
 
     device.connectToServer(host, port);

@@ -48,7 +48,8 @@ void HeartbeatClient::disconnectFromServer()
     {
         m_connectionTimer->stop();
         m_socket->disconnectFromHost();
-        qInfo() << "Disconnected from server for device:" << m_deviceId;
+        QString disconnectMsg = QString("Disconnected from server for device: %1").arg(m_deviceId);
+        emit statusMessage(disconnectMsg); // 假设新增了 statusMessage(QString) 信号
     }
 }
 
@@ -68,6 +69,8 @@ void HeartbeatClient::onConnected()
     {
         m_connectionTimer->start();
         emit connectionStatusChanged(true);
+        QString connectMsg = "Successfully connected to server";
+        emit statusMessage(connectMsg); // 发射状态消息信号
     }
 }
 
@@ -82,7 +85,7 @@ void HeartbeatClient::onErrorOccurred(QAbstractSocket::SocketError socketError)
 {
     QString errorMessage = QString("Socket error: %1 - %2").arg(socketError).arg(m_socket->errorString());
     emit errorOccurred(errorMessage);
-    qWarning() << errorMessage;
+    emit statusMessage(errorMessage); // 发射错误消息信号
 }
 
 void HeartbeatClient::onReadyRead()
@@ -97,8 +100,8 @@ void HeartbeatClient::onReadyRead()
     if (messageType == "HEARTBEAT")
     {
         stream >> deviceId >> timestamp;
-        qInfo() << "Received heartbeat from device:" << deviceId << "Timestamp:" << timestamp;
-
+        QString heartbeatMsg = QString("Received heartbeat from device: %1, Timestamp: %2").arg(deviceId).arg(timestamp);
+        emit statusMessage(heartbeatMsg); // 发射心跳消息信号
         if (deviceId == m_deviceId)
         {
             m_lastHeartbeat = timestamp;
@@ -107,7 +110,8 @@ void HeartbeatClient::onReadyRead()
     }
     else
     {
-        qWarning() << "Received unknown message type:" << messageType;
+        QString unknownMsg = QString("Received unknown message type: %1").arg(messageType);
+        emit statusMessage(unknownMsg); // 发射未知消息类型信号
     }
 }
 
@@ -119,7 +123,8 @@ void HeartbeatClient::checkConnection()
     if (m_lastHeartbeat > 0 && QDateTime::currentMSecsSinceEpoch() - m_lastHeartbeat > 20000)
     {
         emit connectionTimeout();
-        qWarning() << "Connection timeout for device:" << m_deviceId;
+        QString timeoutMsg = QString("Connection timeout for device: %1").arg(m_deviceId);
+        emit statusMessage(timeoutMsg); // 发射超时消息信号
         disconnectFromServer();
     }
 }
