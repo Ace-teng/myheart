@@ -1,4 +1,5 @@
 #include "heartbeatclient.h"
+#include <QDebug>
 
 HeartbeatClient::HeartbeatClient(QObject *parent)
     : QObject(parent), m_connected(false), m_lastHeartbeat(0)
@@ -22,7 +23,20 @@ HeartbeatClient::~HeartbeatClient()
 
 void HeartbeatClient::connectToServer(const QString &host, quint16 port, const QString &deviceId)
 {
-    if (m_connected) return;
+    if (m_connected)
+        return;
+
+    if (host.isEmpty())
+    {
+        emit errorOccurred("Host address cannot be empty");
+        return;
+    }
+
+    if (port == 0)
+    {
+        emit errorOccurred("Port number cannot be zero");
+        return;
+    }
 
     m_deviceId = deviceId;
     m_socket->connectToHost(host, port);
@@ -30,9 +44,11 @@ void HeartbeatClient::connectToServer(const QString &host, quint16 port, const Q
 
 void HeartbeatClient::disconnectFromServer()
 {
-    if (m_connected) {
+    if (m_connected)
+    {
         m_connectionTimer->stop();
         m_socket->disconnectFromHost();
+        qInfo() << "Disconnected from server for device:" << m_deviceId;
     }
 }
 
@@ -44,9 +60,12 @@ void HeartbeatClient::onConnected()
     QDataStream stream(&data, QIODevice::WriteOnly);
     stream << QString("CLIENT_REGISTER") << m_deviceId;
 
-    if (m_socket->write(data) == -1) {
+    if (m_socket->write(data) == -1)
+    {
         emit errorOccurred("Failed to register client: " + m_socket->errorString());
-    } else {
+    }
+    else
+    {
         m_connectionTimer->start();
         emit connectionStatusChanged(true);
     }
@@ -61,8 +80,9 @@ void HeartbeatClient::onDisconnected()
 
 void HeartbeatClient::onErrorOccurred(QAbstractSocket::SocketError socketError)
 {
-    Q_UNUSED(socketError);
-    emit errorOccurred(m_socket->errorString());
+    QString errorMessage = QString("Socket error: %1 - %2").arg(socketError).arg(m_socket->errorString());
+    emit errorOccurred(errorMessage);
+    qWarning() << errorMessage;
 }
 
 void HeartbeatClient::onReadyRead()
@@ -74,22 +94,32 @@ void HeartbeatClient::onReadyRead()
 
     stream >> messageType;
 
-    if (messageType == "HEARTBEAT") {
+    if (messageType == "HEARTBEAT")
+    {
         stream >> deviceId >> timestamp;
+        qInfo() << "Received heartbeat from device:" << deviceId << "Timestamp:" << timestamp;
 
-        if (deviceId == m_deviceId) {
+        if (deviceId == m_deviceId)
+        {
             m_lastHeartbeat = timestamp;
             emit heartbeatReceived(timestamp);
         }
+    }
+    else
+    {
+        qWarning() << "Received unknown message type:" << messageType;
     }
 }
 
 void HeartbeatClient::checkConnection()
 {
-    if (!m_connected) return;
+    if (!m_connected)
+        return;
 
-    if (m_lastHeartbeat > 0 && QDateTime::currentMSecsSinceEpoch() - m_lastHeartbeat > 20000) {
+    if (m_lastHeartbeat > 0 && QDateTime::currentMSecsSinceEpoch() - m_lastHeartbeat > 20000)
+    {
         emit connectionTimeout();
+        qWarning() << "Connection timeout for device:" << m_deviceId;
         disconnectFromServer();
     }
 }

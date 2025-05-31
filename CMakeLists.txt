@@ -18,7 +18,7 @@ add_executable(heart_device
     heartbeatdevice.h
     heartbeatdevice.cpp
 )
-target_link_libraries(heart_device Qt6::Core Qt6::Network)
+target_link_libraries(heart_device PRIVATE Qt6::Core Qt6::Network)
 
 # 服务器端可执行程序
 add_executable(heart_server
@@ -26,7 +26,7 @@ add_executable(heart_server
     heartbeatserver.h
     heartbeatserver.cpp
 )
-target_link_libraries(heart_server Qt6::Core Qt6::Network)
+target_link_libraries(heart_server PRIVATE Qt6::Core Qt6::Network)
 
 # 客户端可执行程序
 add_executable(heart_client
@@ -34,7 +34,7 @@ add_executable(heart_client
     heartbeatclient.h
     heartbeatclient.cpp
 )
-target_link_libraries(heart_client Qt6::Core Qt6::Network)
+target_link_libraries(heart_client PRIVATE Qt6::Core Qt6::Network)
 
 include(GNUInstallDirs)
 # 安装配置（可选）
