@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include "heartbeatserver.h"
+#define ResourcesUsageChartDebugOn
 
 int main(int argc, char *argv[])
 {

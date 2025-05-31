@@ -6,8 +6,7 @@
 #include <QTimer>
 #include <QDateTime>
 
-class HeartbeatClient : public QObject
-{
+class HeartbeatClient : public QObject {
     Q_OBJECT
 public:
     explicit HeartbeatClient(QObject *parent = nullptr);
@@ -23,7 +22,7 @@ signals:
     void errorOccurred(const QString &error);
     void heartbeatReceived(qint64 timestamp);
     void connectionTimeout();
-    void statusMessage(const QString &msg); // 新增的携带 QString 消息的信号
+    void statusMessage(const QString &msg);
 
 private slots:
     void onConnected();

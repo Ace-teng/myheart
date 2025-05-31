@@ -1,14 +1,22 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include "heartbeatclient.h"
+#define ResourcesUsageChartDebugOn
 
-int main(int argc, char *argv[])
-{
+// 测试槽函数
+void testStatusMessageSlot(const QString &msg) {
+#ifdef DEBUG
+    qDebug() << "Test slot received status message:" << msg;
+#endif
+}
+
+int main(int argc, char *argv[]) {
     QCoreApplication a(argc, argv);
 
-    if (argc < 4)
-    {
+    if (argc < 4) {
+#ifdef DEBUG
         qDebug() << "Usage: testclient <host> <port> <deviceId>";
+#endif
         return 1;
     }
 
@@ -38,12 +46,8 @@ int main(int argc, char *argv[])
 #endif
     });
 
-    // 连接 statusMessage 信号并输出消息
-    QObject::connect(&client, &HeartbeatClient::statusMessage, [](const QString &msg) {
-#ifdef DEBUG
-        qDebug() << "Client status message:" << msg;
-#endif
-    });
+    // 连接到测试槽函数
+    QObject::connect(&client, &HeartbeatClient::statusMessage, testStatusMessageSlot);
 
     QString host = argv[1];
     QString portStr = argv[2];
