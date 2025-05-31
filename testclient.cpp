@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
         qDebug() << "Client connection timeout!";
     });
 
-    client.connectToServer(host, port, deviceId);
+    client.connectToServer("127.0.0.1", 8888, "device_001");
 
     return a.exec();
 }

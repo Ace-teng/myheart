@@ -50,7 +50,6 @@ void HeartbeatServer::onNewConnection()
 {
     while (m_server->hasPendingConnections()) {
         QTcpSocket *socket = m_server->nextPendingConnection();
-        // 使用lambda表达式包裹槽函数，解决参数匹配问题
         connect(socket, &QAbstractSocket::disconnected, this, [this, socket]() {
             onClientDisconnected(socket);
         });
@@ -74,6 +73,8 @@ void HeartbeatServer::onClientDisconnected(QTcpSocket *socket)
         QString deviceId = m_clientSockets.key(socket);
         if (!deviceId.isEmpty()) {
             m_clientSockets.remove(deviceId);
+            // 对于客户端断开，也触发设备断开信号（因为客户端关联了设备ID）
+            emit deviceDisconnected(deviceId);
         }
     }
 

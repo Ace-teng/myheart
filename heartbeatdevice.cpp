@@ -18,7 +18,7 @@ HeartbeatDevice::HeartbeatDevice(QObject *parent)
         }
     }
     if (m_deviceId.isEmpty()) {
-        m_deviceId = "DEV-" + QString::number(QDateTime::currentSecsSinceEpoch());
+        m_deviceId = "DEV - " + QString::number(QDateTime::currentSecsSinceEpoch());
     }
 
     m_heartbeatTimer = new QTimer(this);
@@ -42,7 +42,7 @@ void HeartbeatDevice::connectToServer(const QString &host, quint16 port)
 void HeartbeatDevice::disconnectFromServer()
 {
     if (m_connected) {
-        m_heartbeatTimer->stop();
+        m_heartbeatTimer->stop();// 停止心跳发送
         m_socket->disconnectFromHost();
     }
 }
