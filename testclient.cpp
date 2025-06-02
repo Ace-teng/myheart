@@ -1,11 +1,11 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include "heartbeatclient.h"
-#define ResourcesUsageChartDebugOn
 
-// 测试槽函数
+#define HeartbeatClientDebugOn
+
 void testStatusMessageSlot(const QString &msg) {
-#ifdef DEBUG
+#ifdef HeartbeatClientDebugOn
     qDebug() << "Test slot received status message:" << msg;
 #endif
 }
@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     QCoreApplication a(argc, argv);
 
     if (argc < 4) {
-#ifdef DEBUG
+#ifdef HeartbeatClientDebugOn
         qDebug() << "Usage: testclient <host> <port> <deviceId>";
 #endif
         return 1;
@@ -23,31 +23,31 @@ int main(int argc, char *argv[]) {
     HeartbeatClient client;
 
     QObject::connect(&client, &HeartbeatClient::connectionStatusChanged, [](bool connected) {
-#ifdef DEBUG
+#ifdef HeartbeatClientDebugOn
         qDebug() << "Client connection status:" << (connected? "Connected" : "Disconnected");
 #endif
     });
 
     QObject::connect(&client, &HeartbeatClient::errorOccurred, [](const QString &error) {
-#ifdef DEBUG
+#ifdef HeartbeatClientDebugOn
         qDebug() << "Client error:" << error;
 #endif
     });
 
     QObject::connect(&client, &HeartbeatClient::heartbeatReceived, [](qint64 timestamp) {
-#ifdef DEBUG
+#ifdef HeartbeatClientDebugOn
         qDebug() << "Client heartbeat received at:" << QDateTime::fromMSecsSinceEpoch(timestamp).toString();
 #endif
     });
 
     QObject::connect(&client, &HeartbeatClient::connectionTimeout, []() {
-#ifdef DEBUG
+#ifdef HeartbeatClientDebugOn
         qDebug() << "Client connection timeout!";
 #endif
     });
 
-    // 连接到测试槽函数
-    QObject::connect(&client, &HeartbeatClient::statusMessage, testStatusMessageSlot);
+    QObject::connect(&client, &HeartbeatClient::statusMessage,
+                     testStatusMessageSlot);
 
     QString host = argv[1];
     QString portStr = argv[2];

@@ -4,7 +4,8 @@ HeartbeatServer::HeartbeatServer(QObject *parent)
     : QObject(parent)
 {
     m_server = new QTcpServer(this);
-    connect(m_server, &QTcpServer::newConnection, this, &HeartbeatServer::onNewConnection);
+    connect(m_server, &QTcpServer::newConnection,
+            this, &HeartbeatServer::onNewConnection);
 }
 
 HeartbeatServer::~HeartbeatServer()
@@ -50,10 +51,12 @@ void HeartbeatServer::onNewConnection()
 {
     while (m_server->hasPendingConnections()) {
         QTcpSocket *socket = m_server->nextPendingConnection();
-        connect(socket, &QAbstractSocket::disconnected, this, [this, socket]() {
+        connect(socket, &QAbstractSocket::disconnected,
+                this, [this, socket]() {
             onClientDisconnected(socket);
         });
-        connect(socket, &QAbstractSocket::readyRead, this, [this, socket]() {
+        connect(socket, &QAbstractSocket::readyRead,
+                this, [this, socket]() {
             onReadyRead(socket);
         });
     }

@@ -80,6 +80,7 @@ void HeartbeatClient::onReadyRead() {
     QDataStream stream(data);
     QString messageType, deviceId;
     qint64 timestamp;
+    // Changed to Qt::ISODate
 
     stream >> messageType;
 
