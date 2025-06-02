@@ -1,10 +1,10 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include "heartbeatdevice.h"
+
 #define HeartbeatDevicesDebugOn
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     QCoreApplication a(argc, argv);
 
     if (argc < 3) {
@@ -14,7 +14,6 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // 修正：将 char* 转换为 QString
     QString host = argv[1];
     QString portStr = argv[2];
     quint16 port = portStr.toUShort();
@@ -23,7 +22,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(&device, &HeartbeatDevice::connectionStatusChanged, [](bool connected) {
 #ifdef HeartbeatDevicesDebugOn
-        qDebug() << "Device connection status:" << (connected? "Connected" : "Disconnected");
+        qDebug() << "Device connection status:" << (connected ? "Connected" : "Disconnected");
 #endif
     });
 
@@ -33,12 +32,13 @@ int main(int argc, char *argv[])
 #endif
     });
 
-    QObject::connect(&device, &HeartbeatDevice::heartbeatSent, [](qint64 timestamp) {
+    QObject::connect(&device, &HeartbeatDevice::heartbeatSent, [](const QDateTime &timestamp) {
 #ifdef HeartbeatDevicesDebugOn
-        qDebug() << "Device heartbeat sent at:" << QDateTime::fromMSecsSinceEpoch(timestamp).toString();
+        qDebug() << "Device heartbeat sent at:" << timestamp.toString(Qt::ISODate);
 #endif
     });
 
+    device.setHeartbeatInterval(8000); // 设置心跳间隔为 8 秒
     device.connectToServer(host, port);
 
     return a.exec();

@@ -1,10 +1,10 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include "heartbeatserver.h"
+
 #define HeartbeatServerDebugOn
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     QCoreApplication a(argc, argv);
 
     if (argc < 2) {
@@ -14,7 +14,6 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // 修正：将 char* 转换为 QString 后再调用 toUShort()
     QString portStr = argv[1];
     quint16 port = portStr.toUShort();
 
@@ -22,7 +21,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(&server, &HeartbeatServer::serverStarted, [](bool success) {
 #ifdef HeartbeatServerDebugOn
-        qDebug() << "Server started:" << (success? "Yes" : "No");
+        qDebug() << "Server started:" << (success ? "Yes" : "No");
 #endif
     });
 
@@ -38,9 +37,9 @@ int main(int argc, char *argv[])
 #endif
     });
 
-    QObject::connect(&server, &HeartbeatServer::heartbeatReceived, [](const QString &deviceId, qint64 timestamp) {
+    QObject::connect(&server, &HeartbeatServer::heartbeatReceived, [](const QString &deviceId, const QDateTime &timestamp) {
 #ifdef HeartbeatServerDebugOn
-        qDebug() << "Heartbeat received from" << deviceId << "at" << QDateTime::fromMSecsSinceEpoch(timestamp).toString();
+        qDebug() << "Heartbeat received from" << deviceId << "at" << timestamp.toString(Qt::ISODate);
 #endif
     });
 
@@ -50,6 +49,7 @@ int main(int argc, char *argv[])
 #endif
     });
 
+    server.setHeartbeatTimeoutInterval(20000); // 设置心跳超时时间为 20 秒
     if (!server.startServer(port)) {
         return 1;
     }

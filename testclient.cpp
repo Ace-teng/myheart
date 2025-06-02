@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
 
     QObject::connect(&client, &HeartbeatClient::connectionStatusChanged, [](bool connected) {
 #ifdef HeartbeatClientDebugOn
-        qDebug() << "Client connection status:" << (connected? "Connected" : "Disconnected");
+        qDebug() << "Client connection status:" << (connected ? "Connected" : "Disconnected");
 #endif
     });
 
@@ -34,9 +34,9 @@ int main(int argc, char *argv[]) {
 #endif
     });
 
-    QObject::connect(&client, &HeartbeatClient::heartbeatReceived, [](qint64 timestamp) {
+    QObject::connect(&client, &HeartbeatClient::heartbeatReceived, [](const QDateTime &timestamp) {
 #ifdef HeartbeatClientDebugOn
-        qDebug() << "Client heartbeat received at:" << QDateTime::fromMSecsSinceEpoch(timestamp).toString();
+        qDebug() << "Client heartbeat received at:" << timestamp.toString(Qt::ISODate);
 #endif
     });
 
@@ -46,14 +46,14 @@ int main(int argc, char *argv[]) {
 #endif
     });
 
-    QObject::connect(&client, &HeartbeatClient::statusMessage,
-                     testStatusMessageSlot);
+    QObject::connect(&client, &HeartbeatClient::statusMessage, testStatusMessageSlot);
 
     QString host = argv[1];
     QString portStr = argv[2];
     quint16 port = portStr.toUShort();
     QString deviceId = argv[3];
 
+    client.setConnectionTimeoutInterval(150000); // 设置连接超时时间为 15 秒
     client.connectToServer(host, port, deviceId);
 
     return a.exec();
